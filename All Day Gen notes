@@ -235,6 +235,7 @@ Sent 1 packets.
 
  DAY-2
  --------------------------------------------------------------------------------------------------------------------------------------------------------
+ *TCPDUMP
  sudo tcpdump 
  sudo tcpdump -D ( gives you choices for all interface options)
  
@@ -244,5 +245,56 @@ Sent 1 packets.
  sudo tcpdump -i eth0 -XX --- shows ou the ethernet header aswell 
  sudo tcpdump -i eth0 -XX -W writes it to a different file to save
  -V verbose( can stack multiple times)
+ 
+ sudo tcpdump port 80 or 22
+ sudo tcpdump portrange 20-100
+sudo tcpdump "src net 10.10.0.0/24 && (dst net 10.1.0.0/24) && (! dst host 10.1.0.3)   ----- searches for a source network of (range) to dst network of
+(range) bit not the network 10.1.0.3)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+* BERKELEY PACKET FILTERS:
 
+BERKELEY PACKET FILTERS (BPF)
+Requests a SOCK_RAW socket and setsockopt calls SO_ATTACH_FILTER
+
+sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))
+...
+setsockopt(sock, SOL_SOCKET, SO_ATTACH_FILTER, ...)
+
+ tcpdump
+
+BERKELEY PACKET FILTERS
+Using BPFs with operators, bitmasking, and TCPDump creates a powerful tool for traffic filtering and parsing.
+
+tcpdump {A} [B:C] {D} {E} {F} {G}
+
+A = Protocol (ether | arp | ip | ip6 | icmp | tcp | udp)
+B = Header Byte offset
+C = optional: Byte Length. Can be 1, 2 or 4 (default 1)
+D = optional: Bitwise mask (&)
+E = Operator (= | == | > | < | <= | >= | != | () | << | >>)
+F = Result of Expresion
+G = optional: Logical Operator (&& ||) to bridge expressions
+
+Example:
+tcpdump 'ether[12:2] = 0x0800 && (tcp[2:2] != 22 && tcp[2:2] != 23)'      
+(goes to the ether header 12th bytes and looks at the next to byte)  ----- *(ether[12:2])*
+ = 0x0800 ------ Look at the bytes and make sure the value is 0800(ipv4) and  go to the tcp header 2nd byte and looks a the next two btyes. and make sure 
+ it's not port 23  *(tcp[2:2] != 23)')*
+
+BITWISE MASKING
+To filter down to the bit(s) and not just the byte.
+ip[0] & 0x0F > 0x05   (look at ip byte zero and this value (0x0F) and match it to 0x05)
+
+---------------------------------------
+FILTER LOGIC - MOST EXCLUSIVE    ( must be that value)
+
+All designated bit values must be set; no others can be set
+tcp[13] = 0x11        --- tcp byte 13 HAS to equal  to 0x11
+--or--
+tcp[13] & 0xFF = 0x11
+
+FILTER LOGIC - LESS EXCLUSIVE     ---- (dont care about other flags)
+All designated bits must be set; all others may be set
+
+tcp[13] & 0x11 = 0x11    --- go to  the tcp byte 13 and make sure ack and fin are turned on  (0x11) then make sure it equal to the 0x11
 
