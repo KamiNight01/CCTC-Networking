@@ -141,6 +141,7 @@ MAC (Media Access Control)
 LLC (Logical Link Control)
 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -232,10 +233,16 @@ Sent 1 packets.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
- 
+ DAY-2
  --------------------------------------------------------------------------------------------------------------------------------------------------------
+ sudo tcpdump 
+ sudo tcpdump -D ( gives you choices for all interface options)
  
  
-
+ sudo tcpdump -i eth0     ---- captures only on eth0
+ sudo tcpdump -i eth0 -X    - gives you hex duump 
+ sudo tcpdump -i eth0 -XX --- shows ou the ethernet header aswell 
+ sudo tcpdump -i eth0 -XX -W writes it to a different file to save
+ -V verbose( can stack multiple times)
 
 
