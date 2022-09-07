@@ -297,4 +297,1055 @@ FILTER LOGIC - LESS EXCLUSIVE     ---- (dont care about other flags)
 All designated bits must be set; all others may be set
 
 tcp[13] & 0x11 = 0x11    --- go to  the tcp byte 13 and make sure ack and fin are turned on  (0x11) then make sure it equal to the 0x11
- less doesnt care whatever you have turned on just the onesi t wants.
+ less doesnt care whatever you have turned on just the ones it wants.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Traffic Capture
+
+
+
+
+Verify TCPDUMP Primitive and BPF filters 
+with the -d option
+LIBPCAP
+
+WINPCAP.org
+Last update:
+Version 4.1.3, 08 mar 13
+
+NPCAP
+Packet sniffing has many practical uses today such as:
+
+Network troubleshooting
+Diagnosing improper routing or switching
+Identifying port/protocol misconfigurations
+Monitor networking consumption
+Intercepting usernames and passwords
+Intercept and eavesdrop on network communications
+
+Disadvantages of Packet sniffing:
+
+Requires elevated permissions on capture systems.
+Can only captures packets that the NIC is able to see. Today, most networks are built with modern switches and routers that segments network traffic into separate collision and broadcast domains.
+Only unencrypted traffic can be seen, read and manipulated. Although some protocol analyzers allow you to decrypt this traffic if you have the encryption keys.
+Cannot capture traffic sent locally on the system because they go thru the internal loopback.
+Can consume massive amounts of local storage depending on how busy the network is and capture filters applied.
+Busy networks can have packet capture loss due to the NIC or CPU limitations of the collector.
+Berkley Packet Filters (BPF) Syntax Examples
+LIBPCAP
+BPF syntax with tcpdump
+ tcpdump protocol[byte#:size] {& mask} {operator} {value}
+protocol = Identify which header to look in.
+Mandatory.
+ether, arp, ip, ip6, icmp, tcp, udp
+byte# = Starting byte number to start looking.
+Mandatory.
+0 - 20 etc
+size = Identify how many bytes to read.
+Optional.
+Can use 1 (default), 2 or 4.
+& mask = bitwise mask. Use to specify specific bits.
+Optional.
+Can be decimal or hex.
+1 = match and 0 = ignore.
+operator = to specify the condition ( =, <, < =, >, >=, !=)
+Mandatory.
+value = Mandatory to identify what match (or not match) to find.
+Can be in hex (0x45) or decimal (69) but should be same format as mask.
+To conjoin 2 or more statements you can use = (&& or and), (|| or 'or')
+When using &, &&, ||, and ( ) you must surround the entire statement with " " or ' '
+This is usefull when you want to verify the search parameters of your tcpdump primitives or BPFs
+IPv4 Header
+TCP Header
+tcpdump -d 
+- Dump the compiled packet-matching code in a human readable form to standard output and stop.  Please mind that although code compilation is always DLT-specific, typically it is impossible (and unnecessary) to specify which DLT to use for the dump because tcpdump uses either the DLT of the input pcap file specified with -r,  or the default DLT of the network interface specified with -i,  or the particular DLT of the network interface specified with -y  and -i  respectively. In these cases the dump shows the same exact code that would filter the input file or the network interface without -d.   However, when neither -r  nor -i  is specified, specifying -d  prevents tcpdump from guessing a suitable network interface (see -i).  In this case the DLT defaults to EN10MB and can be set to another valid value manually with -y.
+Data that meets the capture criteria of the SO_ATTACH_FILTER are then sent to the User Space application
+5.
+
+
+root@linux-opstation-pysn:~# tcpdump -d ip and icmp
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 5
+(002) ldb      [23]
+(003) jeq      #0x1              jt 4 jf 5
+(004) ret      #262144
+(005) ret      #0
+This example we are using tcpdump primitives "ip" and "icmp".
+
+ldh = load a half-word
+[12] = Starting at byte 12. Starting from the start of the frame (byte 0) you count up to byte 12. In this case its the Ether-type field
+
+jeq #0x800 = jump if equal to 0x0800. E-type 0x0800 means that the next header is IPv4.
+jt 2 jf 5 = jump to line 2 if true or jump to line 5 if false
+
+ldb = load a byte
+[23] = Starting at byte 23. Byte 0-13 is the Ethernet Frame. Since the next header is IPv4 it will start at byte 14. Counting the bytes, 23 is the Protocol field.
+
+jeq #0x1 = jump if equal to 0x1. Protocol 0x01 saying that the next header is ICMPv4.
+jt 4 jf 5 = jump to line 4 if true or jump to line 5 if false
+
+ret #262144 = just needs to be a large number to capture packet
+ret #0 = a null value means to ignore packet
+Data is sent thru the SO_ATTACH_FILTER to capture/ignore data specific to the user's intent.
+
+4.
+
+New grid
+Hex	8	4	2	1	8	4	2	1
+DEC	128	64	32	16	8	4	2	1
+Value	0	1	0	0	0	1	0	1
+Mask	1	1	1	1	0	0	0	0
+Mask	0	0	0	0	1	1	1	1
+root@linux-opstation-pysn:~# tcpdump -d 'ether[12:2]=0x0800 && ip[9]=0x01'   = Using a BPF to express the same will get a similar result. Only difference here is:
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 6                       = (001) jeq #0x800 jt 2 jf 6 = This is the result of searching for E-type 0x0800.
+(002) jeq      #0x800           jt 3 jf 6                         = (002) jeq #0x800 jt 3 jf 6 = This second line is automatically searched for when specifiying a "ip" header BPF.
+(003) ldb      [23]
+(004) jeq      #0x1             jt 5 jf 6
+(005) ret      #262144
+(006) ret      #0
+Specify the source port you are searching for in 
+Hex or Decimal
+Data is converted into RAW SOCKETS in Kernel Space. This means that data is kept in the original format that it was seen as on the wire. Headers are normally stripped off and only the 'payload' is sent up to Application layer to be viewed in user space.
+Specify the destination port you are searching for in Hex or Decimal
+
+14
+Shifts all bits to the right 2 places. 
+ECN field "falls off"
+8
+4
+2
+1
+8
+4
+2
+1
+3.
+
+23
+TCP Flags
+128	64	32	16	8	4	2	1
+CWR	ECE	URG	ACK	PSH	RST	SYN	FIN
+							
+							
+
+DSCP
+
+12 and 13
+Ethernet Header
+Here you will specify the DSCP and ECN value you are searching for
+1 = Match
+0 = Ignore
+
+
+
+
+
+
+>> 2
+32
+16
+8
+4
+2
+1
+
+Value
+Ver
+IHL
+QOS
+ECN
+ECN
+DSCP
+Flags
+DSCP alternative to bit mask is to bit shift right 2 bits:
+ip[1] >> 2 = {DSCP value}
+
+
+
+
+
+
+
+
+Offset
+32
+16
+8
+4
+2
+1
+2
+1
+Specify the exact flag combination you are searching 
+for in Hex or decimal
+Here you will specify the Hex equivalent of the DSCP you are trying to find
+Protocol
+Mask
+
+
+
+
+
+
+
+
+Byte[1]
+128
+64
+32
+16
+8
+4
+2
+1
+Type
+Code
+Here you will specify the decimal equivalent of the DSCP you are trying to find
+Masks only the CWR flag and rest are ignored
+New grid
+DSCP / ECN	32	16	8	4	2	1	2	1
+Hex	8	4	2	1	8	4	2	1
+DEC	128	64	32	16	8	4	2	1
+Value								
+Mask	1	1	1	1	1	1	0	0
+Mask	0	0	0	0	0	0	1	1
+Options
+Types
+Before bit-shift
+DSCP       Bit
+32      =    128
+16      =    64
+8        =    32
+4        =    16
+2        =    8
+1        =    4
+After bit-shift
+DSCP       Bit
+32      =    32
+16      =    16
+8        =    8
+4        =    4
+2        =    2
+1        =    1
+Here you will specify the only the ECN you are searching for in Hex
+Masks only the CWR flag and rest are ignored
+New grid
+0	1	2	3	4	5
+New grid
+6	7	8	9	10	11
+New grid
+12	13
+Masks only the ECE flag and rest are ignored
+Here you will specify the only the ECN you are searching for in decimal
+
+
+
+VERY SPECIFIC
+Only packets with the ACK+PSH flags set and NO other flags.
+
+LESS SPECIFIC
+Any packets with the ACK+PSH flags set and other flags are ignored.
+Masks only the ECE flag and rest are ignored
+For this DSCP value
+Look for this Decimal or HEX value
+LEAST SPECIFIC
+Packets  that have the ACK, PSH or ACK+PSH flags set and NOT both off. Other flags are ignored.
+root@linux-opstation-pysn:~# tcpdump -d ip6 and icmp6      = Here we are using primitives again and searching for "ipv6" and "icmpv6" traffic.
+(000) ldh [12]                             = Here is loading a half word starting at byte 12.
+(001) jeq      #0x86dd        jt 2 jf 8                   = if its equal to 0x86dd then jump to line 2, else jump to line 8.
+(002) ldb      [20]                          = Load 1 byte at byte 20
+(003) jeq      #0x3a            jt 7 jf 4                   = Jump to line 7 if its 0x3a (58) which is the code for icmpv6. Goto line 4 if it is not.
+(004) jeq      #0x2c            jt 5 jf 8                   = jump to line 5 if its 0x2c (44) which is IPv6-Fragmentation extension header. Goto line 8 if not.
+(005) ldb      [54]                         = Load 1 byte at byte 54
+(006) jeq      #0x3a            jt 7 jf 8                  = Jump to line 7 if its 0x3a (58) which is the code for icmpv6. Goto line 8 if it is not.
+(007) ret      #262144                       = Has a number larger than the packet size so capture the packet.
+(008) ret      #0                          = Has a null value so discard this packet.
+
+Flags
+Offset
+Masks only the URG flag and rest are ignored
+
+All data seen by NIC is captured and processed. Normally only traffic destined for this computer's MAC and IP are captured.
+
+
+Here you will specify the exact flag values you are searching for in Hex
+Masks only the URG flag and rest are ignored
+
+
+
+
+2.
+
+Here you will specify the exact flag values you are searching for in decimal
+Masks only the ACK flag and rest are ignored
+1 = Match
+0 = Ignore
+This will mask only the RES flag. Other flags are ignored. Specify the solution you are searching for in Hex
+Masks only the ACK flag and rest are ignored
+TCP flags can be combined if 2 or more flags are to be masked
+This will mask only the RES flag. Other flags are ignored. Specify the solution you are searching for in Decimal
+Masks only the PSH flag and rest are ignored
+& 0xe0
+& 224
+& 0x1fff
+root@linux-opstation-pysn:~# tcpdump -d 'ether[12:2]=0x86dd && (ip6[20]=0x3a || (ip6[20]=0x2c && icmp6[54]=0x3a))'       = Trying to do something similar with BPF's we can see that icmp6 is not supported. Only ip6 is and nothing higher.
+tcpdump: IPv6 upper-layer protocol is not supported by proto[x]
+This will mask only the DF flag. Other flags are ignored. Specify the solution you are searching for in Hex
+Masks only the PSH flag and rest are ignored
+This will mask only the DF flag. Other flags are ignored. Specify the solution you are searching for in Decimal
+Masks only the RST flag and rest are ignored
+1.
+root@linux-opstation-pysn:~# tcpdump -d 'ether[12:2]=0x86dd && (ip6[20]=0x3a || ip6[20]=0x2c)'                 = Here we removed the "icmp6" header part and was successful.
+(000) ldh      [12]
+(001) jeq      #0x86dd          jt 2 jf 7                                                = like for 'ip' this line is because we are looking for E-type 0x86dd
+(002) jeq      #0x86dd          jt 3 jf 7                                                = this line is also looking for the same because we specified 'ip6' so it will automatically look for E-type 0x86dd
+(003) ldb      [34]
+(004) jeq      #0x3a            jt 6 jf 5
+(005) jeq      #0x2c            jt 6 jf 7
+(006) ret      #262144
+(007) ret      #0
+NIC is set to promiscuous mode (root)
+This will mask only the MF flag. Other flags are ignored. Specify the solution you are searching for in Hex
+Masks only the RST flag and rest are ignored
+This will mask only the MF flag. Other flags are ignored. Specify the solution you are searching for in Decimal
+Masks only the SYN flag and rest are ignored
+20
+
+This will mask only the Fragment offset field. Flag bits are ignored. Specify the offset solution you are searching for in Hex
+Masks only the SYN flag and rest are ignored
+14
+
+Data Stream
+
+54
+This will mask only the Fragment offset field. Flag bits are ignored. Specify the offset solution you are searching for in Decimal
+Masks only the FIN flag and rest are ignored
+Ver
+TC
+Flow Label
+
+Next Header
+This will examine the Flags and the offset field together. Specify the combined solution in Hex or decimal
+12 and 13
+Masks only the FIN flag and rest are ignored
+Default TTL's
+Windows = 128
+Linux = 64
+Cisco = 255
+ipv6 Fragment Header
+Here you will specify the Hex Ethertype you are searching for
+Specify the TTL value you are searching for in Hex or Decimal
+ICMPv4=  0x01 or 1
+TCP = 0x06 or 6
+UDP = 0x11 or 17
+For more, see IANA protocol numbers
+
+Type
+Code
+Specify the IANA protocol number you are searching for in Hex or Decimal
+Types
+802.1Q Header
+Packets can be captured one of two ways:
+Hardware Packet Sniffers - In the past, the process of traffic sniffing was typically done by using hardware devices because the act of capturing packets was too intensive for computers. It is a purpose-built device that is plugged into a network segment to collect and store network packets. Packets are forwarded to a separate system for further analysis. With the improvement of computer CPUs, stand-alone hardware-based sniffers are rarely used anymore.
+
+Software Packet Sniffers - remaining packet sniffers will fall into this category. The local system is used to collect the packets and the software then provides immediate analysis. Software-based sniffers rely on the network interface card (NIC) in the host system to pass traffic to the OS. NICs are set into one of two modes:
+Non-promiscuous: Default for most NICs.  NIC will only process traffic destined for its host MAC address.  Multicast MAC address groups and broadcast addresses are also received and processed.
+Promiscuous: Requires root/kernel permissions to enable. The NIC  receives and processes all traffic. Most operating systems can support promiscuous mode. Support can be limited by the NIC hardware and/or drivers.
+
+New grid
+0	1	2	3	4	5
+New grid
+6	7	8	9	10	11
+New grid
+14	15
+New grid
+16	17
+New grid
+12	13
+UDP Header
+root@linux-opstation-pysn:~# tcpdump -d tcp src port 22 =  Using a primitive to look for source port 22
+(000) ldh      [12]                      = Looks automatically for the E-type field
+(001) jeq      #0x86dd          jt 2 jf 6             = Looks for 0x86dd goto 2 if true or 6 if false
+(002) ldb      [20]                      = Goto byte 20 in the ipv6 header
+(003) jeq      #0x6             jt 4 jf 15            = goto 4 if it equals 0x06 (TCP) else goto 15
+(004) ldh      [54]                      = Load half-word at byte 54 (start of tcp header)
+(005) jeq      #0x16            jt 14 jf 15           = Jump to 14 if its 0x16 (22)
+(006) jeq      #0x800           jt 7 jf 15            = Secondly looks for 0x0800 if not 0x86dd from line 1. Goto 7 if true else 15.
+(007) ldb      [23]                      = Goto byte 23 of ipv4 header
+(008) jeq      #0x6             jt 9 jf 15            = goto 9 if its 0x06 (TCP) else goto 15
+(009) ldh      [20]                      = Load half-word at byte 20
+(010) jset     #0x1fff          jt 15 jf 11            = jset = jump if set. If the mask of 0x01fff had a value then goto 15. This is focusing on only the offset field. If there is a value here then its a fragment with no higher layer header encapsulated. Else goto 11
+(011) ldxb     4*([14]&0xf)                  = this loads byte 14 with a mask of 0x0f which focuses on the IHL. Performs the math operation of (4 x (IHL value)). If IHL is 5 then value is 20. If IHL is 7 then value is 28. IHL of 15 is 60.
+(012) ldh      [x + 14]                   = Load a half-word at X + 14. 14 is added to the value from line 11. 14 is the # of bytes from the Ethernet Header added to the size of the ip header.
+(013) jeq      #0x16            jt 14 jf 15           = jump to 14 if it equals 0x16 (22) else 15
+(014) ret      #262144                    = Has a number larger than the packet size so capture the packet.
+(015) ret      #0                       = Has a null value so discard this packet.
+IPv6 Header
+root@linux-opstation-pysn:~# tcpdump -d tcp[0:2]=22   = Here is the BPF equivalent of looking for TCP source port 22. The process is similar as using primitives except that it does not check for ipv6 and always assumes ipv4.
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 10
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4 jf 10
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 10 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldh      [x + 14]
+(008) jeq      #0x16            jt 9 jf 10
+(009) ret      #262144
+(010) ret      #0
+54
+20
+This will search for 0x8100 (VLAN Tag) Ethertype. Then search for the12-bit vlan number in Hex or decimal. This will ignore the 4-bit PCP/DEI field
+
+
+This will perform the same task as above. This only combines the search fields. It masks the E-type field and VLAN ID field while ignoring the PCP/DEI field.
+Ver
+TC
+Flow Label
+Next Header
+Popular
+Others
+Specify the source port you are searching for in 
+Hex or Decimal
+Well-Known
+Well-Known
+Specify the destination port you are searching for in Hex or Decimal
+SEQ #
+ACK #
+Flags
+APR Header
+Window
+Offset
+URG Pointer
+Options
+
+
+53
+
+14
+
+12 and 13
+Ver
+IHL
+Well-Known
+Well-Known
+QOS
+ECN
+
+Flags
+SEQ #
+Offset
+Protocol
+
+ACK #
+
+Flags
+Window
+Offset
+URG Pointer
+
+Options
+Options
+Types
+Ignores the high  4 bits of byte 0 
+and low 4 bits of byte 1
+34-*74*
+20
+23
+33-*73*
+Ignores the first 1.5 bytes
+
+Specify the IANA protocol number you are searching for in Hex or Decimal
+root@linux-opstation-pysn:~# tcpdump -d udp dst port 53  = Looks for UDP destination port 53 in the same fashion that it did for the previous TCP.
+(000) ldh      [12]
+(001) jeq      #0x86dd          jt 2 jf 6
+(002) ldb      [20]
+(003) jeq      #0x11            jt 4 jf 15
+(004) ldh      [56]
+(005) jeq      #0x35            jt 14 jf 15
+(006) jeq      #0x800           jt 7 jf 15
+(007) ldb      [23]
+(008) jeq      #0x11            jt 9 jf 15
+(009) ldh      [20]
+(010) jset     #0x1fff          jt 15 jf 11
+(011) ldxb     4*([14]&0xf)
+(012) ldh      [x + 16]                    = Adds 16 to the value of line 11. 14 bytes for Ethernet header and 2 bytes of the source port field.
+(013) jeq      #0x35            jt 14 jf 15
+(014) ret      #262144
+(015) ret      #0
+
+Specify the TTL value you are searching for in Hex or Decimal
+Remember that after every BPF statement you must have an operator and a result to search for.
+
+
+tcpdump {A} [B:C] {D} {E} {F} {G}
+
+A = Protocol header (ether | arp | ip | ip6 | icmp | tcp | udp)
+B = Header Byte offset
+C = optional: Size in bytes. Can be 1 (byte), 2 (half-word) or 4 (word) (default 1 byte)
+D = optional: Bitwise mask (&)
+E = Operators  = , == , > , < , <= , >= , != , () , << , >>
+F = Value to search for
+G = optional: Logical Operators and (&&) or or (||) to bridge expressions
+ICMP Header
+20
+
+root@linux-opstation-pysn:~# tcpdump -d udp[2:2]=53    = identical to using primitives except that it will not check for ipv6.
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 10
+(002) ldb      [23]
+(003) jeq      #0x11            jt 4 jf 10
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 10 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldh      [x + 16]
+(008) jeq      #0x35            jt 9 jf 10
+(009) ret      #262144
+(010) ret      #0
+56
+
+Ver
+TC
+Flow Label
+Next Header
+Well-Known
+Well-Known
+
+
+53
+14
+
+12 and 13
+Ver
+IHL
+QOS
+ECN
+Flags
+Offset
+Protocol
+
+Specify the ICMP Type value in Hex or Decimal
+
+
+Well-Known
+Well-Known
+
+
+Specify the ICMP Code value in Hex or Decimal
+Options
+Types
+23
+20
+33-*73*
+36-*76*
+
+EXAMPLES
+
+Simple:
+
+To print all ethernet traffic:
+
+tcpdump ether
+
+To print all packets related to ARP:
+
+tcpdump arp
+
+To print all packets related to ICMP:
+
+tcpdump icmp
+
+To print all ICMP echo-request packets :
+
+tcpdump 'icmp[icmptype] = icmp-echo'
+
+To print all ICMP echo-reply packets :
+
+tcpdump 'icmp[icmptype] = icmp-reply'
+
+To print all packets arriving at or departing from 192.168.1.1:
+
+tcpdump host 192.168.1.1
+
+To print all packets arriving at 192.168.1.1:
+
+tcpdump dst host 192.168.1.1
+
+To print all packets departing from 192.168.1.1:
+
+tcpdump src host 192.168.1.1
+
+To print all packets arriving at or departing from 192.168.1.0/24 network:
+
+tcpdump net 192.168.1.0/24
+
+To print all packets departing from 192.168.1.0/24 network:
+
+tcpdump src net 192.168.1.0/24
+
+To print all packets arriving at 192.168.1.0/24 network:
+
+tcpdump dst net 192.168.1.0/24
+
+To print all packets related to IPv4:
+
+tcpdump ip
+
+To print all packets related to IPv6:
+
+tcpdump ip6
+
+To print all packets related to TCP:
+
+tcpdump tcp
+
+To print all packets related to UDP:
+
+tcpdump udp
+
+To print all packets arriving at or departing from TCP port 22:
+
+tcpdump tcp port 22
+
+To print all packets arriving at TCP port 22:
+
+tcpdump tcp dst port 22
+
+To print all packets departing from TCP port 22:
+
+tcpdump tcp src port 22
+
+To print all packets  arriving at or departing from TCP or UDP port 53:
+
+tcpdump port 53
+
+To print all packets with TCP flag ACK set:
+
+ 'tcp[tcpflags] = tcp-ack'
+EXAMPLES
+
+Complex:
+To print traffic between 192.168.1.1 and either 10.1.1.1 or 10.1.1.2:
+
+tcpdump host 192.168.1.1 and \( 10.1.1.1 or 10.1.1.2 \)
+
+To print all IP packets between 10.1.1.1 and any host except 10.1.1.2:
+
+tcpdump ip host 10.1.1.1 and not 10.1.1.2
+
+To print all traffic between local hosts and hosts at Berkeley:
+
+tcpdump net ucb-ether
+
+To print all ftp traffic through internet gateway 192.168.1.1: (note that the expression is quoted to prevent the shell from (mis-)interpreting the parentheses):
+
+tcpdump 'gateway 192.168.1.1 and (port ftp or ftp-data)'
+
+To print traffic neither sourced from nor destined for local hosts (if you gateway to one other net, this stuff should never make it onto your local net).
+
+tcpdump ip and not net localnet
+
+To print the start and end packets (the SYN and FIN packets) of each TCP conversation that involves a non-local host.
+
+tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0 and not src and dst net localnet'
+
+To print the TCP packets with flags RST and ACK both set. (i.e. select only the RST and ACK flags in the flags field, and if the result is "RST and ACK both set", match)
+
+tcpdump 'tcp[tcpflags] & (tcp-rst|tcp-ack) == (tcp-rst|tcp-ack)'
+
+To print all IPv4 HTTP packets to and from port 80, i.e. print only packets that contain data, not, for example, SYN and FIN packets and ACK-only packets. (IPv6 is left as an exercise for the reader.)
+
+tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+To print IP packets longer than 576 bytes sent through gateway 192.168.1.1:
+
+tcpdump 'gateway 192.168.1.1 and ip[2:2] > 576'
+
+To print IP broadcast or multicast packets that were not sent via Ethernet broadcast or multicast:
+
+tcpdump 'ether[0] & 1 = 0 and ip[16] >= 224'
+
+To print all ICMP packets that are not echo requests/replies (i.e., not ping packets):
+
+tcpdump 'icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply'
+
+TCPDUMP looking for ARP with primitives or BPFs are identical.
+root@linux-opstation-pysn:~# tcpdump -d arp
+(000) ldh      [12]
+(001) jeq      #0x806           jt 2 jf 3
+(002) ret      #262144
+(003) ret      #0
+root@linux-opstation-pysn:~# tcpdump -d ether[12:2]=0x0806
+(000) ldh      [12]
+(001) jeq      #0x806           jt 2 jf 3
+(002) ret      #262144
+(003) ret      #0
+Types of sniffing
+Active sniffing – Traffic is not only captured but can be manipulated or altered in some way for a network attack. Some examples of attacks that employ Active sniffing are:
+MAC Flooding
+DHCP Attacks
+DNS Poisoning
+Spoofing Attacks
+ARP Poisoning
+
+Passive sniffing – Traffic is captured and not modified. This is the most common method of packet sniffing. Several applications that send data in clear-text are vulnerable to this type of sniffing.
+HTTP
+FTP
+SMTP
+NNTP
+POP
+IMAP
+TELNET
+DNS
+
+12 and 13
+HW Type
+Type
+Length
+OP Code
+Protocol Len
+Types
+Mitm
+Mitm
+
+
+
+
+
+DNS Request
+DNS Request
+root@linux-opstation-pysn:~# tcpdump -d tcp port 80              = Primitive to search for TCP source and destination port 80. With primitives it will check for IPv6 as well has IPv4.
+(000) ldh      [12]
+(001) jeq      #0x86dd          jt 2 jf 8
+(002) ldb      [20]
+(003) jeq      #0x6             jt 4 jf 19
+(004) ldh      [54]
+(005) jeq      #0x50            jt 18 jf 6
+(006) ldh      [56]
+(007) jeq      #0x50            jt 18 jf 19
+(008) jeq      #0x800           jt 9 jf 19
+(009) ldb      [23]
+(010) jeq      #0x6             jt 11 jf 19
+(011) ldh      [20]
+(012) jset     #0x1fff          jt 19 jf 13
+(013) ldxb     4*([14]&0xf)
+(014) ldh      [x + 14]
+(015) jeq      #0x50            jt 18 jf 16
+(016) ldh      [x + 16]
+(017) jeq      #0x50            jt 18 jf 19
+(018) ret      #262144
+(019) ret      #0
+
+
+root@linux-opstation-pysn:~# tcpdump -d 'tcp[0:2]=80 || tcp[2:2]=80'      = BPF to search for TCP source and destination port 80. This would have to be done with 2 separate statements. Can only check for IPv4.
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 12
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4 jf 12
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 12 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldh      [x + 14]
+(008) jeq      #0x50            jt 11 jf 9
+(009) ldh      [x + 16]
+(010) jeq      #0x50            jt 11 jf 12
+(011) ret      #262144
+(012) ret      #0
+
+
+
+
+Web Request
+Web Request
+Sniffing and 
+manipulating 
+traffic
+54
+20
+
+
+Ver
+TC
+Flow Label
+DNS Request
+DNS Request
+Next Header
+Web Request
+Web Request
+Well-Known
+Well-Known
+SEQ #
+ACK #
+Flags
+Window
+Offset
+
+
+
+
+URG Pointer
+Telnet
+Telnet
+Options
+
+
+
+53
+FTP
+FTP
+14
+
+12 and 13
+SMTP
+DNS Request
+SMTP
+Ver
+IHL
+Well-Known
+Well-Known
+QOS
+ECN
+
+Flags
+SEQ #
+Offset
+POP
+Web Request
+POP
+Protocol
+
+ACK #
+
+Flags
+Window
+Offset
+URG Pointer
+IMAP
+Telnet
+IMAP
+
+Options
+Options
+Types
+Palo Alto Wireshark Workshop Videos
+Changing Column Displays
+Display Filter Expressions
+Identifying Hosts and Users
+Exporting Objects from pcap
+{ ether | arp | ip | icmp | tcp | udp }
+{ bootp | dns | smtp | imap | pop | ftp | ftp-data | malformed }
+ip.addr == x.x.x.x
+!(ip.addr == x.x.x.x)
+ip.addr == x.x.x.x && ip.addr == x.x.x.x
+ip.addr >= x.x.x.x and ip.addr <= x.x.x.x
+ip.src == xxxx && ip.dst == xxxx
+tcp.port==xxx
+!(tcp.port==xxx)
+udp.port==xxx
+tcp.dstport == xx
+tcp.srcport == xx
+tcp.flags.reset==1
+tcp.flags.push == 1
+{ip | tcp | udp | data } contains "xxx"
+http or https
+http.request
+http.request.method == "GET"
+http.request.method == "POST"
+34-*74*
+20
+FTP
+23
+33-*73*
+SMTP
+
+POP
+root@linux-opstation-pysn:~# tcpdump -d 'ip[1]&252=184'    = This can ONLY be done with BPF. This will search for packet with a DSCP of 46 (Voice) which converts to 184 or 0xb8.
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 6
+(002) ldb      [15]                          = looks at byte 15 which is the TOS field (or DSCP and ECN).
+(003) and      #0xfc                        = Applies a mask of 0xfc (252) which only checks the high order 6 bits and ignores the low order 2 bits. 
+(004) jeq      #0xb8            jt 5 jf 6               = Jump to 5 if it equals 0xb8 (184) else goto 6.
+(005) ret      #262144
+(006) ret      #0
+IMAP
+15
+
+
+Configure SPAN on switch
+MitM
+Flood switch CAM to cause it to flood
+14
+
+12 and 13
+Ver
+IHL
+QOS
+ECN
+Flags
+Offset
+Protocol
+Options
+Types
+Sniffing traffic
+
+root@linux-opstation-pysn:~# tcpdump -d tcp[13]=17       = BPF to check the TCP flags for SYN+ACK. This must be an exact match. 
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 10
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4 jf 10
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 10 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldb      [x + 27]                       = Load a byte at 27 + value of line 5. This will take you to the TCP flags field
+(008) jeq      #0x11            jt 9 jf 10                 = jump to 9 if it equals 0x11 (17) which is both the SYN and ACK flags turned on and rest of flags off.
+(009) ret      #262144
+(010) ret      #0
+
+root@linux-opstation-pysn:~# tcpdump -d 'tcp[13]&17=17'    = This BPF will also check for SYN+ACK but other flags may/may not be set.
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 11
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4 jf 11
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 11 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldb      [x + 27]                      = Load a byte at 27 + value of line 5. This will take you to the TCP flags field
+(008) and      #0x11                       = Applies a mask to only check the SYN and ACK fields. Other bits are ignored.
+(009) jeq      #0x11            jt 10 jf 11               = jump to 10 if it equals 0x11 (17) which is both the SYN and ACK flags turned on and rest of flags are ignored.
+(010) ret      #262144
+(011) ret      #0
+
+root@linux-opstation-pysn:~# tcpdump -d 'tcp[13]&17!=0'    = This BPF just check the SYN+ACK bits to ensure that the combined value do not equal 0. Other flags are not matched. 
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2 jf 10
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4 jf 10
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 10 jf 6
+(006) ldxb     4*([14]&0xf)
+(007) ldb      [x + 27]
+(008) jset     #0x11            jt 9 jf 10                = Checks the SYN+ACK bits to see if they have a value. Other flags are ignored.
+(009) ret      #262144
+(010) ret      #0
+
+14
+
+12 and 13
+Ver
+IHL
+Well-Known
+Well-Known
+QOS
+ECN
+
+Flags
+SEQ #
+Offset
+Protocol
+
+ACK #
+
+Flags
+Window
+Offset
+
+URG Pointer
+
+Options
+Options
+Types
+34-*74*
+47-*87*
+20
+23
+33-*73*
+
+root@linux-opstation-pysn:~# tcpdump -d 'ether[12:2]=0x8100 && ether[14:2] & 0x0fff = 0x006f'   = BPF that will check for VLAN tag and VLAN 111
+(000) ldh      [12]                                         = load a half word at byte 1 
+(001) jeq      #0x8100          jt 2 jf 6                                   =  jump to 2 if it equals 0x8100 else jump to 6
+(002) ldh      [14]                                         = load a half word at byte 14 which will be the PCP/DEI and VLAN ID field.
+(003) and      #0xfff                                        = applies a mask of 0x0fff which will ignore the PCP/DEI field and only match on the VLAN ID field
+(004) jeq      #0x6f            jt 5 jf 6                                   = jump to 5 if it equals 0x006f (111). Notice that this is showing the leading zero's that normally are removed to identify that we are looking for the value of the entire 2 bytes. Else goto 6.
+(005) ret      #262144
+(006) ret      #0
+
+
+18
+
+12 to 15
+16 and 17
+Ver
+IHL
+Well-Known
+Well-Known
+QOS
+ECN
+
+Flags
+SEQ #
+Offset
+Protocol
+ACK #
+
+Flags
+
+Window
+Offset
+URG Pointer
+
+Options
+Types
+Options
+27
+26
+37-*77*
+38-*78*
+
+Wireskark Display Filters vs Capture Filters
+
+
+
+
+Without Capture filters Wireshark will capture all traffic it sees. Any SSH or RDP traffic that you are using will generate a lot of "noise" and pollute your capture with extra data that you may not need.
+
+We can apply a wireshark display filter to  hide any extra data we don't want to see
+
+
+
+
+
+
+
+
+
+When you open Wireshark you will have this window that gives you the option to enter any capture filters. 
+Here you can enter a capture filter to reduce the amount of captured packets.
+
+Can use primitives:
+icmp
+Or BPF's:
+ip[9]=1
+Here we applied a Capture filter to ignore the background noise
+
+Optionally if Wireshark is already been running you can start a new traffic capture by going to Capture -> Options. The previous capture must already be stopped.
+
+
+
+
+This shows the number of packets that match the display filter but Total captured packets remain the same.
+Now we are only capturing the traffic that we want.
+Quickly captured a lot of packets
+
+
+
+
+
+
+
+
+
+
+
+
+
