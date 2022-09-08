@@ -72,5 +72,75 @@ send(a/b/c/d/e, iface="eth0")
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
+What is the Berkeley Packet Filter, using tcpdump, to capture all packets with a ttl of 64 and less, utilizing the IPv4 or IPv6 Headers? 
+There should be 4880 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "ip[8]<=64 or ip6[7] <=64" -r BPFCheck.pcap | wc -l
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all IPv4 packets with at least the Dont Fragment bit set? There should be 1897 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "ip[6] & 0x40=0x40" -r BPFCheck.pcap | wc -l
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+What is the Berkeley Packet Filter, using tcpdump, to capture traffic with a Source Port higher than 1024, utilizing the correct Transport Layer Headers? 
+There should be 4431 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "tcp[0:2]>1024||udp[0:2]>1024" -r BPFCheck.pcap | wc -l
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all Packets with UDP protocol being set, utilizing the IPv4 or IPv6 Headers? 
+There should be 613 packets.
+Enter the Filter syntax with no spaces
+sudo tcpdump "ip[9]=0x11||ip6[6]=0x11" -r BPFCheck.pcap  |wc -l
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+What is the Berkeley Packet Filter, using tcpdump, to capture only packets with the ACK/RST or ACK/FIN flag set, utilizing the correct Transport 
+Layer Header? There should be 1161 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "tcp[13]=20||tcp[13]=17" -r BPFCheck.pcap  |wc -l
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all packets with an IP ID field of 213? There should be 5 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "ip[4:2]=213" -r BPFCheck.pcap  |wc -l
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all traffic that contains a VLAN tag? There should be 150 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "ether[12:2]=0x8100" -r BPFCheck.pcap  |wc -l
+--------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all IPv4 packets relating to DNS? There should be 31 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "tcp[0:2]=53||udp[0:2]=53||tcp[2:2]=53||udp[2:2]=53" -r BPFCheck.pcap  |wc -l
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+What is the Berkeley Packet Filter, using tcpdump, to capture all IPv4 packets with the DSCP field of 24? There should be 31 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "ip[1]>> 2 = 24 " -r BPFCheck.pcap  |wc -l
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+What is the Berkeley Packet Filter, using tcpdump, to capture all IPv4 packets targeting just the beginning of potential traceroutes as it's 
+entering your network. This can be from a Windows or Linux machine using their default settings? There should be 55 packets.
+Enter the Filter syntax with no spaces
+
+sudo tcpdump "(ip[9]=0x01||ip[9]=0x11)&&ip[8]=0x01" -r BPFCheck.pcap  |wc -l
+
+
+
+
 
 
