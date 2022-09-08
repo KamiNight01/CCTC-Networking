@@ -299,3 +299,4 @@ All designated bits must be set; all others may be set
 tcp[13] & 0x11 = 0x11    --- go to  the tcp byte 13 and make sure ack and fin are turned on  (0x11) then make sure it equal to the 0x11
  less doesnt care whatever you have turned on just the ones it wants.
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
