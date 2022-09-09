@@ -362,6 +362,10 @@ Obfuscating data during transfer
 Manually crafting a packet with the chosen data in header fields
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
+Encoding
+The process of taking bits and converting them using a specified cipher.
+Decoding
+Reverse of the conversion process used by the specified cipher for encoding.
+Common encoding schemes
+UTF-8, Base64, Hex
 
