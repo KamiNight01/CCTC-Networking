@@ -1,0 +1,90 @@
+DATAGRAM:
+
+#!/usr/bin/env python3
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+ipaddr = '127.0.0.1'
+port = 54321
+
+# To send a string as a bytes-like object, add the prefix b to the string. \n is used to go to the next line
+s.sendto(b'Hello Dumbass\n', (ipaddr,port))
+
+# It is recommended that the buffersize used with the recvfrom is a power of 2 and not a very large number in bits.
+response, conn = s.recvfrom(1024)
+
+# In order to receive the message that is sent as a btyes-like object you must decode into utf-8(default)
+print(response.decode())
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+STREAM
+
+#/usr/bin/env python3
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#this can also be accomplished by using s= socket.socket(), because AF_inet and SOCK_STREAM are defailts
+
+ipaddr = '127.0.0.1'
+port = 54321
+
+s.connect((ipaddr, port))
+
+# to send  a string as a byte like object, add the prefix b to the string. \nis u sed to go to the next line 
+s.send(b'Hello\n')
+
+# it is recommended that th ebufersize used with recvform is a power of 2 and not a very large numbers of bit
+response, conn = s.recvfrom(1024)
+
+#in order to receive a message that is sent as byte-like-object, you mist decond into utf-8 (default)
+print(response.decode())
+
+s.close()
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+RAWWWWWWWWW ( DEFAULT ONE )
+
+#!/usr/bin/env python3
+
+#for building the socket
+import socket
+
+# FOr system  level commands:
+import sys
+
+# for establishing the packet structre. This will allow direct access to the methods and functions in the struct module
+from struct import *
+
+#createa  raw socket
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+except socket.error as msg:
+    print(msg)
+    sys.exit()
+
+packet = ''
+src_ip = "10.1.0.2"
+dst_ip = "10.3.0.2"
+
+#add the IPV4 header information
+ip_ver_ihl = 69         # this is putting the decimal conversion off0x45 for version annd Internet header length
+ip_tos = 0              # this cobines te DSCP and ECN fields
+ip_len = 0              # this kernel will fill in the actual length of the packet
+ip_id = 12345           # this sets the IP identification for the packet
+ip_frag = 0             # this sets fragmentation to off 
+ip_ttl = 64             # this determines the TTL of the packet when leaving the machine
+ip_proto = 16           # this sets up the IP protocol to 16 (CHAOS). if this was 6(TCP) or 17(UDP) aditional headers would be required
+ip_check = 0            # The kernel will FILL in the checksum for the packet
+ip_srcadd = socket.inet_aton(src_ip)    # inet_aton(string) will convert an IP address to a 32 bit binary number
+ip_dstadd = socket.inet_aton(dst_ip)    # inet_aton(string) will convert an IP address to a 32 bit binary number 
+
+# the ! in the string means Big-Endian" network order
+ip_header = pack('!BBHHHBBH4s4s', ip_ver_ihl, ip_tos, ip_len, ip_id, ip_frag, ip_ttl, ip_proto, ip_check, ip_srcadd, ip_dstadd)
+
+# b turns it to byte like object before transmissions.
+message = b'General Announcement:Thicc Thighs save lives'
+packet = ip_header + message
+
+# send the packet
+s.sendto(packet, (dst_ip, 0))
