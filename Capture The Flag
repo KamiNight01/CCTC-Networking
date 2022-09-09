@@ -139,8 +139,118 @@ Enter the Filter syntax with no spaces
 
 sudo tcpdump "(ip[9]=0x01||ip[9]=0x11)&&ip[8]=0x01" -r BPFCheck.pcap  |wc -l
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+What are the 3 Address Families associated with the python3 socket module?
+example:
+socket.ADDFAM, socket.ADDFAM, socket.ADDFAM
+
+
+socket.AF_INET,socket.AF_INET6,socket.AF_UNIX
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+What are the two socket functions called to open a connection and to disconnect from that connection?
+
+example:
+
+socket.fun(), socket.func()
+
+
+socket.connect(),socket.close()
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+What python3 library function is utilized to combine the various pieces of your raw socket packet into network order?
+example:
+module.function
+
+struct.pack
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+What must be manually created with raw sockets that stream and datagram sockets creates for you?
+ header
+ 
+ ---------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ What function within the socket module allows you to Send data to a socket, while not already being connected to a remote socket?
+example:
+socket.func()
+
+socket.sendto()
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Provide an example of the two required items needed to be set in order to send a Datagram or Stream socket? (excluding any of the socket.socket functions)
+example:
+item1 item2
+
+ip port
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+When sending data across a connection, what must a string be converted to before being sent due to encoding?
+byte-like object
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Gorgan Forces have requested you get a message to one of their remote teams that are utilizing the BLUE_DMZ_HOST-1. 
+Utilizing the criteria they provided, generate a stream socket with python3:
+Coded information was placed into the video below. Look at the note the woman passes to the man.
+https://youtu.be/6WTdTwcmxyo?t=35
+From your INTERNET-HOST to the BLUE_DMZ_HOST-1
+Port number = #Last four digits on the note
+Message = #Name on the note (First letter capitalized)
 
 
 
+
+#/usr/bin/env python3
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#this can also be accomplished by using s= socket.socket(), because AF_inet and SOCK_STREAM are defailts
+
+ipaddr = '172.16.1.15'
+port = 5309
+
+s.connect((ipaddr, port))
+
+# to send  a string as a byte like object, add the prefix b to the string. \nis u sed to go to the next line 
+s.send(b'Jenny')
+
+# it is recommended that th ebufersize used with recvform is a power of 2 and not a very large numbers of bit
+response, conn = s.recvfrom(1024)
+
+#in order to receive a message that is sent as byte-like-object, you mist decond into utf-8 (default)
+print(response.decode())
+
+s.close()
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Level II Challenge
+Gorgan Forces have requested you get a message to one of their remote teams that are utilizing the INTERNET_HOST. 
+Utilizing the criteria they provided, generate a datagram socket with python3:
+Coded information was placed into the video below. Listen to the words in the video.
+https://youtu.be/OuK4OcMUGcg?t=67
+Send to your INTERNET-HOST localhost.
+Port number = #The number of fists
+Message = #The name of the band (First letter capitalized)
+
+
+#!/usr/bin/env python3
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+ipaddr = '127.0.0.1'
+port = 10000
+
+# To send a string as a bytes-like object, add the prefix b to the string. \n is used to go to the next line
+s.sendto(b'Disturbed', (ipaddr,port))
+
+# It is recommended that the buffersize used with the recvfrom is a power of 2 and not a very large number in bits.
+response, conn = s.recvfrom(1024)
+
+# In order to receive the message that is sent as a btyes-like object you must decode into utf-8(default)
+print(response.decode())
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
