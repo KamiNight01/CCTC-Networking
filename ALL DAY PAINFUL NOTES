@@ -449,16 +449,19 @@ Remote to Remote
 
 Scanning Approach:
 Aim
-Wide range target scan
-Target specific scan
+    Wide range target scan
+    Target specific scan
 Method
-Single source scan
-Distributed scan
+    Single source scan
+    Distributed scan
 
 NETWORK SCANNING:
 Broadcast Ping and Ping sweep
+(for i in {1..254} ;do (ping -c 1 10.10.0.$i | grep "bytes from" &) ;done)
+(for /L %i in (1,1,255) do @ping -n 1 -w 200 10.10.0.%i > nul && echo 192.168.1.%i is up.)
 ARP scan
 SYN scan
+(nmap -sS -p- 192.168.56.102 )
 Full connect scan
 Null scan
 FIN scan
@@ -481,7 +484,74 @@ NETWORK SCANNING - CODE
 Example Syntax
 nmap [Options] [Target IP/ Subnet]
 nc [Options] [Target IP] [Target Port]
+(nc  -help / man nc curl cht.sh/nc )
+
+nc -zv localhost(127.0.0.1) 22
+
+*******-----------------------------------------------------------------------------------------------------------******
+#!/bin/bash
+echo "Enter network address (e.g. 192.168.0): "
+read net
+echo "Enter starting host range (e.g. 1): "
+read start
+echo "Enter ending host range (e.g. 254): "
+read end
+echo "Enter ports space-delimited (e.g. 21-23 80): "
+read ports
+for ((i=$start; $i<=$end; i++))
+do
+    nc -nvzw1 $net.$i $ports 2>&1 | grep -E 'succ|open'
+done
+# (-v) running verbosely (-v on Linux, -vv on Windows),
+# (-n) not resolving names. numeric only IP(no D.S)
+# (-z) without sending any data. zero-I/O mode(used for scanning)
+#(-w1) waiting no more than 1second for a connection to occur
+# (2>&1) redirect STDERR to STDOUT. Results of scan are errors and need to redirect to output to grep
+# (-E) Interpret PATTERN as an extended regular expression
+# ( | grep open) for Debian to display only open connections
+# ( | grep succeeded) for Ubuntu to display only the open connections
+
+(NETCAT )
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NMAP
+nmap 10.10.0.40/27 -v
 
 
+Nmap scan report for 10.10.0.40
+Host is up (0.00024s latency).
+Not shown: 995 closed ports
+PORT     STATE SERVICE
+21/tcp   open  ftp
+22/tcp   open  ssh
+23/tcp   open  telnet
+80/tcp   open  http
+3389/tcp open  ms-wbt-server
+
+Nmap scan report for 10.10.0.62
+Host is up (0.00034s latency).
+All 1000 scanned ports on 10.10.0.62 are closed
+
+nmap  10.10.0.40/27 -v -Pn -T5 -p 20-25,80
+( if you get filtered then there's a an  acl set 
+if get closed response that means the box responded wtih it )
+
+nmap  10.10.0.40/27 -v -Pn -T5 -p-   ( scans every known port with the -p- option) 
+*******------------------------------------------------------------------------------------************
+HOST ENUM 
+ip a 
+netstat -ntlp    ----- listening 
+netstat -antp   ----- all established and listening port 
+ ps -elf 
+ 
+ 
+ 
+ 
+ nmap 10.50.33.207
+nc 10.50.33.207 23
+nc 10.50.33.207 80
+GET   
 
 
+ wget -r  10.50.33.207/    ----- get's it recursively as well as hidden ones 
+ 
