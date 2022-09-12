@@ -443,7 +443,15 @@ packet = ip_header + tcp_hdr + user_data
 
 # Sendd the packet. send to is used when we do not  already have a socket connection.
 s.sendto(packet, (dst_ip, 0))
+------------------------------------------------------------------------------------------------------------------------------------------------------
+How many host(s) did you discover on the DMZ Net? (excluding the router)
 
+nmap 172.16.101.30/27
+1
+-----------------------------------------------------------------------------------------------------
+What is the ip address of the host device(s) in the DMZ network?
 
+nmap 172.16.101.30/27
+172.16.101.2
 
 
