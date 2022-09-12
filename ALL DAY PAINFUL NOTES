@@ -369,3 +369,119 @@ Reverse of the conversion process used by the specified cipher for encoding.
 Common encoding schemes
 UTF-8, Base64, Hex
 
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+__________________________________________________________________________________________________________________________________________________________
+DAY 3
+Reconnaissance
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+RECONNAISSANCE
+Active
+
+Passive
+
+Internal
+
+External
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+PASSIVE RECONNAISSANCE
+Gathering information about targets without direct interaction
+Not as straight forward and requires more time than active reconnaissance
+Lower risk of discovery
+
+Involves identifying:
+IP addresses and Sub-Domains
+External and 3rd party sites
+People and Technologies
+Content of Interest
+Vulnerabilities
+
+Possible tools for gathering:
+WHOIS queries
+Job site listings
+Phone Numbers
+Google searches
+Passive OS fingerprinting
+
+-------------------------------------------------------------------------------------
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE
+Information gathered outside of the network using passive methods
+Allows for more efficient attacks and plans
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: DNS
+Resolves hostnames to IP addresses
+RFC 3912
+WHOIS queries
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: DIG
+Typically between primary and secondary DNS servers
+If allowed to transfer externally hostnames, IPs, and IP blocks can be determined
+
+whois ( domain name ) 
+dig ( domain name)
+dig axfr @(domain mname) for zone transfer
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: ZONE TRANSFERS
+Returns DNS information
+Supplements base queries
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: HOST HISTORY
+netcraft
+wayback machine
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: GOOGLE SEARCHES
+subdomains
+technologies
+
+PASSIVE EXTERNAL NETWORK RECONNAISSANCE: SHODAN
+Reveals information about technologies, remote access services, improperly configured services, and network infrastructure.
+When selected can give additional information and applicable vulnerabilities
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+NETWORK SCANNING
+Scanning Strategy
+Remote to Local
+Local to Remote
+Local to Local
+Remote to Remote
+
+Scanning Approach:
+Aim
+Wide range target scan
+Target specific scan
+Method
+Single source scan
+Distributed scan
+
+NETWORK SCANNING:
+Broadcast Ping and Ping sweep
+ARP scan
+SYN scan
+Full connect scan
+Null scan
+FIN scan
+XMAS tree scan
+UDP scan
+Idle scan
+
+NETWORK SCANNING
+ACK/Window scan
+RPC scan
+FTP scan
+decoy scan
+OS fingerprinting scan
+version scan
+Protocol ping
+Discovery probes
+SCTP INIT scan
+
+NETWORK SCANNING - CODE
+Example Syntax
+nmap [Options] [Target IP/ Subnet]
+nc [Options] [Target IP] [Target Port]
+
+
+
+
