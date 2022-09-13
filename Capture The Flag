@@ -455,3 +455,40 @@ nmap 172.16.101.30/27
 172.16.101.2
 
 
+
+----------------------------------------------------------------------------------------------------------------------
+
+Utilize the targets T2 and RELAY to develop the following netcat relays for use by Gorgan Cyber Forces. 
+The use of names pipes should be utilized on RELAY:
+Syntax for steghide tool:
+steghide extract -sf [image name]
+Passphrase: password
+
+The Donovian Insider provided a image called 1steg.jpg on T2 set to send this file to RELAY on TCP port 1234. 
+Establish a Netcat relay on RELAY to accept this connection and forward to T1. Once the images are downloaded 
+you will use a command-line tool called steghide to extract the message. Perform an MD5SUM on this message to create flag1.
+File should be 89824 bytes in size.
+
+nc -lp 1234 > Mypipe | nc 10.10.0.40 4321 < Mypipe
+nc -lp 4321 > 1steg.jpg
+steghide extract -sf 1steg.jpg
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Utilize the targets T2 and RELAY to develop the following netcat relays for use by Gorgan Cyber Forces. The use of names pipes should be utilized on RELAY:
+Syntax for steghide tool:
+steghide extract -sf [image name]
+Passphrase: password
+The Donovian Insider provided a image called 3steg.jpg on T2 waiting for a connection from RELAY on TCP port 6789. 
+Establish a Netcat relay on RELAY to make this connection and forward to T1. Once the images are downloaded you will use a command-line tool called 
+steghide to extract the message. Perform an MD5SUM on this message to create flag3.
+File should be 177444 bytes in size.
+
+nc 172.16.82.115 6789 > Mypipe | nc 10.10.0.40 1234 < Mypipe
+nc -lp 1234 > 3steg.jpg
+steghide extract -sf 3steg.jpg 
+
+
+
