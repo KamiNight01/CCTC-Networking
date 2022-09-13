@@ -853,3 +853,32 @@ ssh localhost -p 2222
 Creates a remote port on a remote machine, staging a connection.
 Also creates a local port on the localhost to connect to the previously staged connection.
 Login to extra1 via the net1 local port forward
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+ (IMPORTANT)
+ ssh 192.168.1.1 -R 6789:localhost:22 -NT
+ (open an  remote port 6789 on blue host that connects to blue priv  on port 22)
+ ssh 172.16.82.106 -L 9999:localhost:6789
+ create a ssh tunnel to blue host on port 9999 then look at bluehost for the link 6789 on the (localhost) blue host  to connect to the blue-priv
+ 
+ ssh localhost -p 9999
+
+ 
+ 
+ 
+ 
+ 
+ 
+ -------------------------------------------------------------------------------------------------------------------------------------------------------
+COVERT CHANNEL
+A Covert Channel is a method of creating a capability to transfer information objects between endpoints that should not be allowed based on policy.
+Strategies attackers use to avoid detection:
+Tunnels
+ICMP
+DNS
+HTTP
+ 
+ 
+ 
+ 
