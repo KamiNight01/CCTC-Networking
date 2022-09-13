@@ -491,4 +491,13 @@ nc -lp 1234 > 3steg.jpg
 steghide extract -sf 3steg.jpg 
 
 
+Interface with the web service on T3. The hint provides a suggestion on the ports above the well-known that you will need to recon.
+What is the range? (provide the range in the format of the example below)
+example:
+1000-2000
+
+wget -r 172.16.140.33
+
+
+
 
