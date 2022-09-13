@@ -738,3 +738,118 @@ rlogin - replaced with rlogin, provides remote login capability.
 rcp - replaced with scp for secure file transfer
 sftp (not a unix r command replacement) - creates remote directory listing and file transfer capability over SSH
   
+  
+SSH PORT FORWARDING           ( can be used to bypass security measures and get access to network not availabe via conventional method
+
+Creates channels using SSH-CONN protocol
+Allows for tunneling of other services through SSH
+Provides insecure services encryption
+-------------------------------------------------------------------------------------------------------------------------------------------
+SSH LOCAL PORT FORWARDING
+
+Syntax
+ssh -p <optional alt port> <user>@<pivot ip> -L <local bind port>:<tgt ip>:<tgt port> -NT
+or
+ssh -L <local bind port>:<tgt ip>:<tgt port> -p <alt port> <us
+
+
+SSH LOCAL PORT FORWARDING
+Creates a local port (1111) on the local host that forwards to a target machine’s port 80.
+ssh student@172.16.82.106 -L 1111:localhost:80 -NT
+or
+ssh -L 1111:localhost:80 student@172.16.82.106 -NT
+
+
+SSH LOCAL PORT FORWARDING THROUGH A LOCAL PORT
+Internet Host:
+ssh student@172.16.1.15 -L 1111:172.16.40.10:22 -NT
+ssh student@localhost -p 1111 -L 2222:172.16.82.106:80 -NT
+firefox localhost:2222
+Creates an additional local port on the local host that forwards to a target machine through the previous channel created.
+
+when you do ssh student@localhost on your  own box on port 1111 it's basically using the shortcut to 40.10 which is then (-L 2222:172.16.82.106:80 -NT) 
+setting up another tunnel to go to .82.106 on port 80.
+
+
+
+
+SSH DYNAMIC PORT FORWARDING
+Syntax
+ssh -D <port> -p <alt port> <user>@<pivot ip> -NT
+Proxychains default port is 9050
+Creates a dynamic socks4 proxy that interacts alone, or with a previously established remote or local port forward.
+Allows the use of scripts and other userspace programs through the tunnel.
+
+
+SSH DYNAMIC PORT FORWARDING 1-STEP
+Blue Private Host-1:
+ssh student@172.16.82.106 -D 9050 -NT
+
+
+SSH DYNAMIC PORT FORWARDING 2-STEP
+Blue Private Host-1:
+ssh student@172.16.82.106 -L 1111:10.10.0.40:22 -NT
+ssh student@localhost -D 9050 -p 1111 -NT
+
+proxychains curl ftp://www.onlineftp.ch
+proxychains wget -r www.espn.com
+proxychains ./scan.sh
+proxychains ssh student@172.16.101.2
+
+ 
+ port bind from internet host to priv host via blue hosts
+ ssh student@172.16.82.106 -L 1111:192.168.1.10:22 -NT
+
+ssh localhost -p 1111  ( to ssh from internet host directly to priv host)
+ssh localhost -p 1111 -D 9050  -NT  ( to get your tool across , -D allows you to use proxy chains from your device ) 
+when using nmap -Pn to disaple ping whne using proxychains ) 
+
+ proxychains nmap -Pn localhost ( localhost in this scnerio is the 192.168.1.10) 
+ proxychains nmap -Pn 127.0.0.1
+proxychains nc localhost 9001
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SSH REMOTE PORT FORWARDING
+Syntax
+
+ssh -p <optional alt port> <user>@<remote ip> -R <remote bind port>:<tgt ip>:<tgt port> -NT
+or
+ssh -R <remote bind port>:<tgt ip>:<tgt port> -p <alt port> <us
+
+SSH DYNAMIC PORT FORWARDING 2-STEP
+Blue Private Host-1:
+ssh student@172.16.82.106 -L 1111:10.10.0.40:22 -NT
+ssh student@localhost -D 9050 -p 1111 -NT
+
+proxychains curl ftp://www.onlineftp.ch
+proxychains wget -r www.espn.com
+proxychains ./scan.sh
+proxychains ssh student@172.16.101.2
+
+-------------------------------------------------------------------------------------------------------------------
+
+SSH REMOTE PORT FORWARDING
+Syntax
+ssh -p <optional alt port> <user>@<remote ip> -R <remote bind port>:<tgt ip>:<tgt port> -NT
+or
+ssh -R <remote bind port>:<tgt ip>:<tgt port> -p <alt port> <user>@<remote ip> -NT
+
+SSH REMOTE PORT FORWARDING
+Blue Host-1
+ssh student@10.10.0.40 -R 1111:localhost:80 -NT
+Creates a remote port on the remote’s local host that forwards to the target specified.
+ 
+ 
+SSH REMOTE AND LOCAL PORT FORWARDING
+Blue Private Host-1:
+ssh student@172.16.82.106 -R 1111:localhost:22 -NT
+
+Internet Host:
+ssh student@172.16.82.106 -L 2222:localhost:1111 -NT
+Internet Host:
+ssh localhost -p 2222
+Creates a remote port on a remote machine, staging a connection.
+Also creates a local port on the localhost to connect to the previously staged connection.
+Login to extra1 via the net1 local port forward
