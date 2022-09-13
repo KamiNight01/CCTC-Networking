@@ -555,3 +555,150 @@ GET
 
  wget -r  10.50.33.207/    ----- get's it recursively as well as hidden ones 
  
+ ------------------------------------------------------------------------------------------------------------------------------------------------------
+ DAY-4
+ DATA TRANSFER  MOVEMENT and REDIRECTION
+ ------------------------------------------------------------------------------------------------------------------------------------------------------
+DESCRIBE COMMON METHODS FOR TRANSFERRING DATA
+TFTP
+FTP
+    Active
+    Passive
+SFTP   ----
+SCP    - uses ssh channel 
+
+TFTP
+Trivial File Transfer Protocol
+
+RFC 1350 Rev2
+UDP transport
+Extremely small and very simple communication
+No terminal communication () (no console)
+Insecure (no authentication or encryption)
+No directory services
+Used often for technologies such as BOOTP and PXE
+
+FTP
+File Transfer Protocol
+
+RFC 959
+TCP transport
+Uses multiple TCP connections
+Control Connection (21) / Data Connection (20)
+Authentication through clear-text sign in (username and password)
+Insecure in default configuration
+Has directory services
+
+SFTP
+Secure File Transfer Protocol
+TCP transport (TCP port 22)
+Uses symmetric and asymmetric encryption
+Adds FTP like services to SSH
+Authentication through sign in (username and password) or with SSH key
+Interactive terminal access
+
+
+FTPS
+File Transfer Protocol Secure
+TCP transport (TCP port 443)
+Adds SSL/TLS encryption to FTP
+Authentication with username/password and/or PKI
+Interactive terminal access
+-------------------------------------------------------------------------------
+
+SCP
+Secure Copy Protocol
+TCP Transport (TCP port 22)
+Uses symmetric and asymmetric encryption
+Authentication through sign in (username and password) or with SSH key
+Non Interactive
+ 
+ 
+Download a file from a remote directory to a local directory
+  scp student@172.16.82.106:secretstuff.txt /home/student
+  
+Upload a file to a remote directory from a local directory
+  scp secretstuff.txt student@172.16.82.106:/home/student
+
+Copy a file from a remote host to a separate remote host
+ scp -3 student@172.16.82.106:/home/student/secretstuff.txt student@172.16.82.112:/home/student
+
+
+SCP SYNTAX W/ ALTERNATE SSHD
+Download a file from a remote directory to a local directory
+ scp -P 1111 student@172.16.82.106:secretstuff.txt /home/student
+ 
+ Upload a file to a remote directory from a local directory
+    scp -P 1111 secretstuff.txt student@172.16.82.106:/home/student
+ 
+ SCP SYNTAX THROUGH A TUNNEL
+ssh student@172.16.82.106 -L 1111:localhost:22 -NT
+Download a file from a remote directory to a local directory
+    scp -P 1111 student@localhost:secretstuff.txt /home/student               (use -P to use it on a alternate page)
+    
+Upload a file to a remote directory from a local directory
+    scp -P 1111 secretstuff.txt student@localhost:/home/student
+    
+    
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+TRAFFIC REDIRECTION USING TOOLS
+
+NETCAT
+NETCAT is the "swiss army knife" networking utility which reads and writes data across network socket connections using the TCP/IP protocol.
+It is designed to be a reliable "back end" tool that can be used directly or easily driven by other programs and scripts.
+
+Can be used for the following:
+    inbound and outbound connections, TCP/UDP, to or from any ports
+    troubleshooting network connections
+    sending/receiving data (insecurely)
+    port scanning (similar to -sT in Nmap)
+    
+NETCAT: CLIENT TO LISTENER FILE TRANSFER
+    Client (sends file): nc 10.2.0.2 9001 < file.txt
+Listener (receive file): nc -l -p 9001 > newfile.txt
+
+NETCAT: LISTENER TO CLIENT FILE TRANSFER
+Listener (sends file): nc -l -p 9001 < file.txt
+Client (receive file): nc 10.2.0.2 9001 > newfile.txt
+   
+   (net CAT DEMO )
+   nc -l -p 2345 ( remote listening port) 
+   
+   nc 172.16.82.106 2345   ( connect to the remote host on port 2345 )
+   
+   
+
+    
+    
+NETCAT RELAY DEMOS
+On Client Relay:
+mknod mypipe p
+nc 10.1.0.2 9002 0< mypipe | nc 10.2.0.2 9001 1> mypipe
+On Listener2 (sends info):
+
+nc -l -p 9002 < infile.txt
+On Listener1 (receives info):
+
+nc -l -p 9001 > outfile.txt
+Writes the output to listener1 and listener2 through the named pipe
+ 
+ 
+ mknod <name> p 
+  makes a node 
+  
+  mkfifo Mypipe 
+     makes a named pipe
+     
+     nc -lp 3333 > Mypipe | nc -lp  4444 < Mypipe     
+     anything coming to my port 3333 goes to Mypipe and anything on Mypipe goes to  listening port 4444
+     
+      to access it i'd need to connect vua diff one 
+      
+     (
+      nc -lp 3333 > Mypipe | nc -lp  4444 < Mypipe   ( the one being used as  named pipe machine) 
+      nc 172.16.82.106 4444 > Supersecretstuff.txt ( the one that wants the info ) 
+      nc 192.168.1.1 3333 < test  (the one sending the info via named pipe)
+
+     
+ 
+ 
