@@ -737,4 +737,4 @@ rsh - replaced with ssh, provides a channel for running a shell on a remote comp
 rlogin - replaced with rlogin, provides remote login capability.
 rcp - replaced with scp for secure file transfer
 sftp (not a unix r command replacement) - creates remote directory listing and file transfer capability over SSH
- 
+  
