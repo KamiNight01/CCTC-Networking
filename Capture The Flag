@@ -554,7 +554,7 @@ Identify the flag on Mohammed Web Server
 ssh net1_student13@10.50.33.143 -L 11305:localhost:11302 (tunnel from internet host connection to pineland via the remote tunnel port on  on  atropia ) 
  ssh net1_student13@localhost -p 11305 -L 11307:10.2.0.2:80  ( ssh connection to pineland from internet host on the new (joint tunnel) to connect to 10.2.0.2  on port 80 (http)
 wget -r localhost:11307 ( from internet host use wget to connect to the new connection just made that connect internet host to http server on port 11307)
-
+ssh net1_student13@10.2.0.1 -R 11399:localhost:22 ( remote connecton from atlantica to pineland)
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 
