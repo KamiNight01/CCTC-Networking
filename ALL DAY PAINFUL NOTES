@@ -880,5 +880,37 @@ DNS
 HTTP
  
  
- 
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+METHODOLGY
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Recon Methodolgy 
+1.Host Discovery ( nmap , nc , ./scan.sh, ping sweep)
+nmap -Pn
+
+ Linux Ping Sweep
+for i in {1..254} ;do (ping -c 1 192.168.1.$i | grep "bytes from" &) ;done   9 only need to change ip ) 
+Windows Ping Sweep
+for /L %i in (1,1,255) do @ping -n 1 -w 200 192.168.1.%i > nul && echo 192.168.1.%i is up.
+
+
+2. Port Discovery(nmap, nc, /scan.sh)
+
+
+3.Port validation ( Bannergrabbing  aka use netcat on the ip and port)
+nc <ipadd> <port> ( -u for udp)
+
+4.Follow on actions based on ports found
+4a. if it's 22-23  - connect to it and do PASSIVE RECON
+4b. if it's 21 or 80- wget -r <ip addr>  or for ftp wget -r ftp://<ip addr> (PULL THE FILES)
+
+Scanning Methodology
+1.Quick Scan ports: 21-23,80
+2.Well Known Ports: 0-1023
+3.1 -10000 
+4.1-65536 ( hail mary)
+
+Passive Recon Methodology
+  
+Passive Recon
+how can i go beyond this current box and go futher into other  boxes 
  
