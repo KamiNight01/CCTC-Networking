@@ -498,6 +498,79 @@ example:
 
 wget -r 172.16.140.33
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+T3 is the authorized initial pivot
+Conduct passive recon on the Target T3, it appears to have access to the 10.3.0.0/24 subnet.
+Create a Local Port Forward from your Internet_Host to T3 targeting:
+ip: 10.3.0.27
+port: `HTTP``
+Identify the flag on Victoria's HTTP Server
+
+
+
+ ssh net1_student13@10.50.33.143 -L 11301:10.3.0.27:80 -NT
+ (from internet host) wget -r localhost:11301
+ 
+ -------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+2. Tunnels Training - Dynamic Practice
+Level I Challenge
+T3 is the authorized initial pivot
+Conduct passive recon on the Target T3, it appears to have access to the 10.3.0.0/24 subnet.
+Create a Dynamic Port Forward from Internet_Host to T3 then use proxychains to pull the flag.
+Target ip: 10.3.0.1
+Identify the flag on Cortina's FTP Server
+
+ssh -D 9050  net1_student13@10.50.33.143
+proxychains wget -r ftp://10.3.0.1
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Access to T4 has been provided via telnet.
+This is a Compromised host within Donovia
+Leverage this internal access to act as an insider threat throughout this Grorgan Cyber Training Operation.
+Conduct passive recon on this host and determine where the shared location for data relating to CCTC is on the machine.
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+T3 is the authorized initial pivot
+
+Conduct passive recon on the Target T4, it appears to have access to the 10.2.0.0/25 subnet.
+Create a Remote Port Forward from T4 to T3 binding the source as one of Your authorized ports, from the Mission Prompt, targeting:
+ip: 10.2.0.2 port: HTTP
+ssh net1_student13@10.3.0.10 -R 11302:localhost:22   ( remote tunnel on atropia from pineland)
+
+Create a Local Port Forward from Internet_Host to T3 targeting the port you just established.
+ssh net1_student13@localhost -p 11305 -L 11307:10.2.0.2:80  ( ssh connection to pineland from internet host on the new )
+
+
+When creating tunnels your authorized port ranges to utilize are NssXX (N = Net number, ss = Student Number and XX = is student assigned port number)
+Use curl or wget to pull the flag.
+Identify the flag on Mohammed Web Server
+
+ ssh net1_student13@10.3.0.10 -R 11302:localhost:22   ( remote tunnel on atropia from pineland)
+ssh net1_student13@10.50.33.143 -L 11305:localhost:11302 (tunnel from internet host connection to pineland via the remote tunnel port on  on  atropia ) 
+ ssh net1_student13@localhost -p 11305 -L 11307:10.2.0.2:80  ( ssh connection to pineland from internet host on the new (joint tunnel) to connect to 10.2.0.2  on port 80 (http)
+wget -r localhost:11307 ( from internet host use wget to connect to the new connection just made that connect internet host to http server on port 11307)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+T3 is the authorized initial pivot
+
+Use your Dynamic tunnel to T3 and conduct active recon to find the Victoria host.
+Identify the flag on Victoria's FTP Server
+
+ ssh net1_student13@10.50.33.143 -D 9050 -L 11308:10.3.0.27:21
+ proxychains wget -r ftp://10.3.0.27
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ 
+
+
 
 
 
