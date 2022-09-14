@@ -883,6 +883,13 @@ HTTP
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 METHODOLGY
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+ACTIVE ---- Recon 
+ you are sending packets there
+ 
+ PASSIVE ----- Recon
+ tcp dump , baiscally sitting there waiting to see what's going on , just observing the flow of the traffic
+ 
+
 Recon Methodolgy 
 1.Host Discovery ( nmap , nc , ./scan.sh, ping sweep)
 nmap -Pn
@@ -905,12 +912,23 @@ nc <ipadd> <port> ( -u for udp)
 
 Scanning Methodology
 1.Quick Scan ports: 21-23,80
-2.Well Known Ports: 0-1023
-3.1 -10000 
-4.1-65536 ( hail mary)
+2. scan specific ports based on hints/clues found
+3.Well Known Ports: 0-1023
+4.1 -10000 
+5.1-65536 ( hail mary)
 
 Passive Recon Methodology
-  
+hostname
+ip addr 
+ ip a, ifconfig (interface and subnet)
+
+arp -a,  ip neigh (neighbours , dont care about failed)
+ip neigh | egrep -vi "FAILED"
+ss -ntlp  ( other listening ports? ) maybe filtered ones if ssh is filterted for internal use reverse tunnel from the remote port) 
+(File of interest) ls /usr/cctc/share ( default  file of interest)
+Available tools: command to tell you if there's a tool you want 
+which tcpdump wireshark nmap telnet wget curl
+
 Passive Recon
 how can i go beyond this current box and go futher into other  boxes 
  
