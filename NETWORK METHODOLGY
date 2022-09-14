@@ -1,0 +1,51 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+METHODOLGY
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ACTIVE ---- Recon 
+ you are sending packets there
+ 
+ PASSIVE ----- Recon
+ tcp dump , baiscally sitting there waiting to see what's going on , just observing the flow of the traffic
+ 
+
+Recon Methodolgy 
+1.Host Discovery ( nmap , nc , ./scan.sh, ping sweep)
+nmap -Pn
+
+ Linux Ping Sweep
+for i in {1..254} ;do (ping -c 1 192.168.1.$i | grep "bytes from" &) ;done   9 only need to change ip ) 
+Windows Ping Sweep
+for /L %i in (1,1,255) do @ping -n 1 -w 200 192.168.1.%i > nul && echo 192.168.1.%i is up.
+
+
+2. Port Discovery(nmap, nc, /scan.sh)
+
+
+3.Port validation ( Bannergrabbing  aka use netcat on the ip and port)
+nc <ipadd> <port> ( -u for udp)
+
+4.Follow on actions based on ports found
+4a. if it's 22-23  - connect to it and do PASSIVE RECON
+4b. if it's 21 or 80- wget -r <ip addr>  or for ftp wget -r ftp://<ip addr> (PULL THE FILES)
+
+Scanning Methodology
+1.Quick Scan ports: 21-23,80
+2. scan specific ports based on hints/clues found
+3.Well Known Ports: 0-1023
+4.1 -10000 
+5.1-65536 ( hail mary)
+
+Passive Recon Methodology
+hostname
+ip addr 
+ ip a, ifconfig (interface and subnet)
+
+arp -a,  ip neigh (neighbours , dont care about failed)
+ip neigh | egrep -vi "FAILED"
+ss -ntlp  ( other listening ports? ) maybe filtered ones if ssh is filterted for internal use reverse tunnel from the remote port) 
+(File of interest) ls /usr/cctc/share ( default  file of interest)
+Available tools: command to tell you if there's a tool you want 
+which tcpdump wireshark nmap telnet wget curl
+
+Passive Recon
+how can i go beyond this current box and go futher into othe
