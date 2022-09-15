@@ -64,3 +64,4 @@ ssh net1_student13@10.2.0.1 -R 11399:localhost:22 ( remote connecton from atlant
 ssh net1_student13@10.50.33.143 -L 11305:localhost:22 (  connection to atropia via internet-host)
 
  
+NET='172.16.0';for i in {1..254} ;do (ping -c 1 ${NET}.$i 2>/dev/null | grep "bytes from" &) ;done
