@@ -204,4 +204,45 @@ sudo nft add rule ip CCTC input tcp flags syn limit rate 10/second accept
   155  sudo nft list ruleset
   157  history | egrep nft
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo iptables -A INPUT -p tcp -m multiport --ports 22,6010,6011,6012,23,3389  -m state --state NEW,ESTABLISHED -j ACCEPT
+    3  sudo iptables -A OUTPUT -p tcp -m multiport --ports 22,6010,6011,6012,23,3389  -m state --state NEW,ESTABLISHED -j ACCEPT
 
+sudo iptables -A INPUT -p tcp -m multiport --ports 22,6010,6011,6012,23,3389  -m state --state NEW,ESTABLISHED -j ACCEPT
+    3  sudo iptables -A OUTPUT -p tcp -m multiport --ports 22,6010,6011,6012,23,3389  -m state --state NEW,ESTABLISHED -j ACCEPT
+    4  sudo iptables -L
+    5  clear
+    6  for CHAIN in INPUT OUTPUT FORWARD;do sudo iptables -P $CHAIN DROP;done
+    7  sudo iptables -L
+    8  clear
+    9  sudo iptables -A INPUT -s 10.10.0.40 -p icmp --icmp-type echo-reply -j ACCEPT
+   10  sudo iptables -A INPUT -s 10.10.0.40 -p icmp --icmp-type echo-request -j ACCEPT
+   11  clear
+   12  sudo iptables -L
+   13  sudo iptables -A INPUT -d 10.10.0.40 -p icmp --icmp-type echo-request -j ACCEPT
+   14  sudo iptables -A INPUT -d 10.10.0.40 -p icmp --icmp-type echo-reply -j ACCEPT
+   15  sudo iptables -L
+   16  sudo iptables -A OUTPUT -s 10.10.0.40 -p icmp --icmp-type echo-reply -j ACCEPT
+   17  sudo iptables -A OUTPUT -s 10.10.0.40 -p icmp --icmp-type echo-request -j ACCEPT
+   18  sudo iptables -A OUTPUT -d 10.10.0.40 -p icmp --icmp-type echo-request -j ACCEPT
+   19  sudo iptables -A OUTPUT -d 10.10.0.40 -p icmp --icmp-type echo-reply -j ACCEPT
+   20  sudo iptables -L
+   21  clear
+   22  sudo iptables -L
+   23  sudo iptables -A INPUT -p tcp -m multiport --ports 4444,6579  -j ACCEPT
+   24  sudo iptables -L
+   25  sudo iptables -A OUTPUT -p tcp -m multiport --ports 4444,6579  -j ACCEPT
+   26  sudo iptables -A INPUT -p tcp -m multiport --ports 80  -m state --state NEW,ESTABLISHED -j ACCEPT
+   27  sudo iptables -A OUTPUT -p tcp -m multiport --ports 80  -m state --state NEW,ESTABLISHED -j ACCEPT
+   28  sudo iptables -L
+   29  clear
+   30  sudo iptables -L
+   31  sudo iptables -A OUTPUT -p udp -m multiport --ports 4444,6579  -j ACCEPT
+   32  sudo iptables -A INPUT -p udp -m multiport --ports 4444,6579  -j ACCEPT
+   33  sudo iptables -L
+   34  clear
+   35  sudo iptables -L
+   36  sudo iptables -A OUTPUT -p tcp -m multiport --dport 80  -m state --state NEW,ESTABLISHED -j ACCEPT
+   37  sudo iptables -A OUTPUT -p tcp -m multiport --sport 80  -m state --state NEW,ESTABLISHED -j ACCEPT
+   38  sudo iptables -A INPUT -p tcp -m multiport --sport 80  -m state --state NEW,ESTABLISHED -j ACCEPT
+   39  sudo iptables -A INPUT -p tcp -m multi
