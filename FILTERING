@@ -60,3 +60,29 @@ sudo iptables -A INPUT -i eth0 -p tcp --syn -m limit --limit 10/second -j ACCEPT
 sudo iptables-save > ipt.conf
 sudo iptables-restore < ipt.conf
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo apt-get install nftables
+ sudo nft list tables
+ sudo nft flush table ip CCTC    ----- to flush
+ sudo nft delete table ip CCTC      -------- to delete
+  sudo nft insert rule ip CCTC input tcp dport 22 accept
+  to create a chain called input for input
+ sudo nft add chain ip CCTC Output { type filter hook output priority 0 \; policy accept \; }    -- to create a cjain called Output in output 
+ 
+ 
+ sudo nft insert rule ip CCTC input tcp sport 22 accept
+ sudo nft insert rule ip CCTC input tcp dport 22 accept   ---- add tcp dest port 
+ sudo nft  list ruleset
+
+
+  opens the  4 different ports for both source  and destination 
+  
+sudo nft add rule ip CCTC input tcp sport {22, 6010, 6011, 6012} accept
+sudo nft add rule ip CCTC input tcp dport {22, 6010, 6011, 6012} accept
+sudo nft add rule ip CCTC output tcp sport {22, 6010, 6011, 6012} accept
+sudo nft add rule ip CCTC output tcp dport {22, 6010, 6011, 6012} accept
+
+sudo nft add chain ip CCTC output { type filter hook output priority 0 \; policy drop \; }   -----set default policy to drop 
+
+
