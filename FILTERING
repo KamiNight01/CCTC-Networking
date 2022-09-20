@@ -42,3 +42,21 @@ sudo iptables -I OUTPUT -d 172.16.82.106 -j DROP
 sudo iptables -A  OUTPUT -d 172.16.82.112 -j ACCEPT
 sudo iptables -A  INPUT -s 172.16.82.112 -j ACCEPT
 
+
+
+for CHAIN in INPUT OUTPUT FORWARD;do sudo iptables -P $CHAIN DROP;done
+for CHAIN in INPUT OUTPUT FORWARD;do sudo iptables -P $CHAIN ACCEPT;done
+
+
+
+#Drops invalid fragments ( not belonging to any connections) 
+sudo iptables -A INPUT -m state --state INVALID -j DROP
+
+#Drop fragments
+sudo iptables -A INPUT
+
+#throttle syn request and limit to 10 per seconds 
+sudo iptables -A INPUT -i eth0 -p tcp --syn -m limit --limit 10/second -j ACCEPT
+sudo iptables-save > ipt.conf
+sudo iptables-restore < ipt.conf
+
