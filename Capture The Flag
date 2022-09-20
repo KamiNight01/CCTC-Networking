@@ -568,9 +568,11 @@ Identify the flag on Victoria's FTP Server
  
  -----------------------------------------------------------------------------------------------------------------------------------------------
  
- 
+ Utilizing your INTERNET_HOST, create a new rule that will:
+Track 3 ssh authentication attempts within 10 seconds coming from a Specific Source using both threshold.
+Utilizing the provided Traffic Capture how many alerts are created for SSH Brute Force attempts?
 
-
+alert tcp any any -> any 22 (msg:"SSH BRUTE FORCE";threshold:type both, track by_src, count 3, seconds 10;sid:1000003;)
 
 
 
