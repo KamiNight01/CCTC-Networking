@@ -1,0 +1,44 @@
+
+COMMAND TO VIEW FILTER TABLES
+sudo iptables -L 
+sudo iptables -t nat -L
+sudo iptables -L --line to show the line numbers 
+ sudo iptables -L -v    ---- to track connections on how many packet triggered them. 
+
+Ctrl R -- reverse search 
+
+
+sudo iptables  -F         --- to FLUSH
+sudo iptables -t nat -F
+
+Explicitly open ssh for both input and output 
+
+ sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+ sudo iptables -A INPUT -p tcp --sport 22 -j ACCEPT
+ sudo iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT
+ sudo iptables -A OUTPUT -p tcp --sport 22 -j ACCEPT
+ 
+  set default policy fron accept to drop 
+  
+  sudo iptables -P INPUT DROP
+  ------------------------------------
+  sudo iptables -P FORWARD DROP      -P t change the default policy    
+
+
+
+ To set on multiple ports 
+sudo iptables -A INPUT -p tcp -m multiport --ports 22,6010,6011,6012 ( 
+sudo iptables -A INPUT -p tcp -m multiport --ports 22,6010,6011,6012  -m state --state NEW,ESTABLISHED -j ACCEPT
+( also matches on state NEW or ESTABLISHED as well as accept)
+sudo iptables -A OUTPUT -p tcp -m multiport --ports 22,6010,6011,6012  -m state --state NEW,ESTABLISHED -j ACCEPT
+
+sudo iptables  -D  OUTPUT 4  (deletes  the OUTPUT rule on number 4 ) 
+
+sudo iptables -I INPUT -s 172.16.82.106 -j DROP
+sudo iptables -I OUTPUT -d 172.16.82.106 -j DROP
+
+
+
+sudo iptables -A  OUTPUT -d 172.16.82.112 -j ACCEPT
+sudo iptables -A  INPUT -s 172.16.82.112 -j ACCEPT
+
