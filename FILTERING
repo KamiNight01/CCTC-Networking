@@ -86,3 +86,122 @@ sudo nft add rule ip CCTC output tcp dport {22, 6010, 6011, 6012} accept
 sudo nft add chain ip CCTC output { type filter hook output priority 0 \; policy drop \; }   -----set default policy to drop 
 
 
+
+
+ Explicittly allow or deny  certain ip onto 
+sudo nft add rule ip CCTC input ip saddr 172.16.82.112 drop
+sudo nft add rule ip CCTC output ip daddr 172.16.82.112 drop
+sudo nft add rule ip CCTC input ip saddr 10.10.0.40  accept
+sudo nft add rule ip CCTC output ip daddr 10.10.0.40  accept
+
+
+
+--------------------------------------------------------------------------------
+table ip CCTC { # handle 4
+	chain output { # handle 1
+		type filter hook output priority 0; policy drop;
+		tcp sport 22 accept # handle 5
+		tcp dport 22 accept # handle 4
+		tcp sport { 22, 6010, 6011, 6012 } accept # handle 14
+		tcp dport { 22, 6010, 6011, 6012 } accept # handle 16
+		ip daddr 172.16.82.112 # handle 18
+		ip daddr 172.16.82.112 drop # handle 20
+		ip daddr 10.10.0.40 accept # handle 22
+	}
+
+	chain input { # handle 2
+		type filter hook input priority 0; policy drop;
+		tcp sport 22 accept # handle 6
+		tcp dport 22 accept # handle 3
+		tcp sport { 22, 6010, 6011, 6012 } # handle 8
+		tcp sport { 22, 6010, 6011, 6012 } accept # handle 10
+		tcp dport { 22, 6010, 6011, 6012 } accept # handle 12
+		ip saddr 172.16.82.112 # handle 17
+		ip saddr 172.16.82.112 drop # handle 19
+		ip saddr 10.10.0.40 accept # handle 21
+	}
+--------------------------------------------------------------------------------
+sudo nft add rule ip CCTC input position 6 ip saddr 172.16.82.112 drop
+sudo nft insert rule ip CCTC output ip daddr 172.16.82.112 drop
+
+sudo nft add chain ip CCTC output { type filter hook output priority 0 \; policy accept\; }
+
+sudo nft list ruleset > nft.rules   ---- save to file 
+sudo nft -f nft.ruleset     ------- restore from file
+sudo nft flush table CCTC
+
+
+# DROP invalid packets 
+sudo nft add rule ip HEADER input ct state invalid drop
+
+# DROP Fragmented packets 
+sudo nft add rule ip HEADER input ip frag-off != 0 drop
+
+#limit(THROTTELED) SYN request to prevent syn floods
+sudo nft add rule ip CCTC input tcp flags syn limit rate 10/second accept
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(COMMANDS)
+101  sudo nft add table ip CCTC
+  102  sudo nft list
+  103  sudo nft list tables
+  104  sudo apt-get install nftables
+  105  sudo nft add table ip CCTC
+  106  sudo nft list tables
+  108  sudo nft list tables
+  109  sudo nft flush
+  110  sudo nft flush table ip CCTC
+  111  sudo nft delete table ip CCTC
+  112  sudo nft add table ip CCTC
+  113  sudo nft list tables
+  117  sudo nft add chain ip CCTC input { type filter hook input priority 0\; policy accept \;
+  118  sudo nft add chain ip CCTC input { type filter hook input priority 0 \; policy accept \; }
+  119  sudo nft list ruleset
+  120  sudo nft add chain ip CCTC Output { type filter hook output priority 0 \; policy accept \; }
+  121  sudo nft list ruleset
+  123  sudo nft insert rule ip CCTC input tcp dport 22 accept
+  124  sudo nft insert rule ip CCTC input tcp sport 22 accept
+  125  sudo nft insert rule ip CCTC output tcp dport 22 accept
+  126  sudo nft insert rule ip CCTC output tcp sport 22 accept
+  127* sudo nft insert rule ip CCTC Output tcp dport 22 accept
+  128  sudo nft list ruleset
+  130  sudo nft delete table CCTC
+  131  sudo nft add table CCTC
+  132  sudo nft list rules
+  133  sudo nft list
+  134* sudo nft list 
+  136  sudo nft list tables
+  137  sudo nft add chain ip CCTC output { type filter hook output priority 0 \; policy accept \; }
+  138  sudo nft add chain ip CCTC input { type filter hook input priority 0 \; policy accept \; }
+  139  sudo nft list ruleset
+  140  sudo nft insert rule ip CCTC input tcp dport 22 accept
+  141  sudo nft insert rule ip CCTC output tcp dport 22 accept
+  142  sudo nft list ruleset
+  143  sudo nft insert rule ip CCTC output tcp sport 22 accept
+  144  sudo nft insert rule ip CCTC input tcp sport 22 accept
+  145  sudo nft list ruleset
+  146  sudo nft add rule ip CCTC input tcp sport {22, 6010, 6011, 6012}
+  147  sudo nft add rule ip CCTC input tcp sport {22, 6010, 6011, 6012} accept
+  148  sudo nft add rule ip CCTC input tcp dport {22, 6010, 6011, 6012} accept
+  149  sudo nft add rule ip CCTC output tcp sport {22, 6010, 6011, 6012} accept
+  150  sudo nft add rule ip CCTC output tcp dport {22, 6010, 6011, 6012} accept
+  151  sudo nft list ruleset
+  153  sudo nft add chain ip CCTC input { type filter hook input priority 0 \; policy drop \; }
+  154  sudo nft add chain ip CCTC output { type filter hook output priority 0 \; policy drop \; }
+  155  sudo nft list ruleset
+  157  history | egrep nft
+
+
