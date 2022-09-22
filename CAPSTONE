@@ -52,3 +52,7 @@ Provide the number of ports converted to BASE64.
 
 -----------------------------------------------------------------------------
 proxychains wget -r 10.1.1.11:1918
+
+
+ tcpdump -XXvv -i eth0 src 10.2.2.7 and dst 10.2.2.6 and port 23
+
